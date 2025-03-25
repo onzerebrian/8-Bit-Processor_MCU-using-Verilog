@@ -3,7 +3,8 @@ Design of a 16-Bit CPU using Verilog
 
 ----
 
-
+# block diagram
+https://github.com/onzerebrian/8-Bit-Processor_MCU-using-Verilog/blob/main/block_diagrams.jpg
 
 To achieve a 8-Bit processor MCU design, I had to start by designing the following individual components.
 1. ALU
@@ -16,3 +17,7 @@ To achieve a 8-Bit processor MCU design, I had to start by designing the followi
 9. Multiplexer
 10. Controller
 11. CPU
+
+
+# State Transisions
+https://github.com/onzerebrian/8-Bit-Processor_MCU-using-Verilog/blob/main/STATE_TRASNISION_DIAGRAM.jpg
