@@ -20,4 +20,4 @@ To achieve a 8-Bit processor MCU design, I had to start by designing the followi
 
 
 # State Transisions
-https://github.com/onzerebrian/8-Bit-Processor_MCU-using-Verilog/blob/main/STATE_TRASNISION_DIAGRAM.jpg
+![](https://github.com/onzerebrian/8-Bit-Processor_MCU-using-Verilog/blob/main/STATE_TRASNISION_DIAGRAM.jpg?raw=true)
