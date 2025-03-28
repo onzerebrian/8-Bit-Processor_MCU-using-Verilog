@@ -1,0 +1,34 @@
+
+# synth.ys - Yosys Synthesis Script for 8-bit MCU
+
+# Read your top-level Verilog source
+read_verilog mcu_top.v
+read_verilog datapath.v
+read_verilog control_unit.v
+read_verilog alu.v
+read_verilog register_file.v
+read_verilog reg_a.v
+read_verilog reg_b.v
+read_verilog reg_c.v
+read_verilog flags.v
+read_verilog instruction_memory.v
+read_verilog data_memory.v
+read_verilog program_counter.v
+read_verilog instruction_register.v
+read_verilog data_register.v
+read_verilog mux1.v
+read_verilog pc_mux.v
+read_verilog decoder.v
+read_verilog io_module.v
+
+# Set top module
+hierarchy -top mcu_top
+
+# Generic synthesis
+proc; opt; fsm; opt
+techmap; opt
+abc -liberty /usr/share/oss-cad-suite/share/sky130_fd_sc_hd/tech/sky130_fd_sc_hd__tt_025C_1v80.lib
+opt
+
+# Write synthesized netlist
+write_verilog synth_mcu.v
