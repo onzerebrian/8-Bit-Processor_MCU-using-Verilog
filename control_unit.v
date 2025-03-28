@@ -1,10 +1,9 @@
+
 module control_unit (
     input clk,
     input reset,
     input [3:0] opcode,
-    input imm_mode,  // from decoder
-
-    // Control signals output
+    input imm_mode,
     output reg reg_write,
     output reg load_a,
     output reg load_b,
@@ -22,98 +21,103 @@ module control_unit (
     output reg io_write_enable
 );
 
-    // Opcodes (based on earlier discussion)
-    localparam ADD   = 4'b0000;
-    localparam SUB   = 4'b0001;
-    localparam STORE = 4'b0010;
-    localparam LOAD  = 4'b0011;
-    localparam MOV   = 4'b0100;
-    localparam MOVI  = 4'b0101;
-    localparam JMP   = 4'b0111;
-    localparam NOP   = 4'b1111;
+    reg [2:0] state, next_state;
 
-    // Simple FSM: only a fetch-decode-execute cycle
+    parameter FETCH = 0, DECODE = 1, EXEC1 = 2, EXEC2 = 3, WRITEBACK = 4,
+              OUT_LOAD = 5, OUT_WRITE = 6;
+
+    parameter NOP = 4'h0, ADD = 4'h1, SUB = 4'h2, AND_OP = 4'h3, OR_OP = 4'h4,
+              XOR_OP = 4'h5, MOV = 4'h6, LDI = 4'h7, LOAD = 4'h8, STORE = 4'h9,
+              IN = 4'hA, OUT = 4'hB, DEC = 4'hC, JMP = 4'hD, JNZ = 4'hE, HLT = 4'hF;
+
+    always @(posedge clk or posedge reset) begin
+        if (reset)
+            state <= FETCH;
+        else
+            state <= next_state;
+    end
+
     always @(*) begin
         // Default all signals
-        reg_write       = 0;
-        load_a          = 0;
-        load_b          = 0;
-        load_c          = 0;
-        load_ir         = 0;
-        load_flags      = 0;
-        load_data_reg   = 0;
-        mem_write       = 0;
-        load_pc         = 0;
-        inc_pc          = 1;
-        pc_sel          = 0;
-        mux1_sel        = 2'b00;
-        alu_op          = 4'b0000;
-        io_enable       = 0;
+        reg_write = 0;
+        load_a = 0;
+        load_b = 0;
+        load_c = 0;
+        load_ir = 0;
+        load_flags = 0;
+        load_data_reg = 0;
+        mem_write = 0;
+        load_pc = 0;
+        inc_pc = 0;
+        pc_sel = 0;
+        mux1_sel = 2'b00;
+        alu_op = 4'b0000;
+        io_enable = 0;
         io_write_enable = 0;
+        next_state = FETCH;
 
-        case (opcode)
-            ADD: begin
+        case (state)
+            FETCH: begin
+                load_ir = 1;
+                inc_pc = 1;
+                next_state = DECODE;
+            end
+
+            DECODE: begin
+                case (opcode)
+                    ADD, SUB, AND_OP, OR_OP, XOR_OP, MOV, LDI, LOAD, STORE, DEC, JMP, JNZ:
+                        next_state = EXEC1;
+                    OUT:
+                        next_state = OUT_LOAD;
+                    default:
+                        next_state = FETCH;
+                endcase
+            end
+
+            EXEC1: begin
                 load_a = 1;
                 load_b = 1;
-                alu_op = ADD;
+                case (opcode)
+                    ADD: alu_op = 4'b0001;
+                    SUB: alu_op = 4'b0010;
+                    AND_OP: alu_op = 4'b0011;
+                    OR_OP:  alu_op = 4'b0100;
+                    XOR_OP: alu_op = 4'b0101;
+                    MOV:    alu_op = 4'b0000;
+                    LDI:    alu_op = 4'b0000;
+                    DEC:    alu_op = 4'b0110;
+                    JMP:    pc_sel = 1;
+                    JNZ:    pc_sel = 1;
+                endcase
+                next_state = EXEC2;
+            end
+
+            EXEC2: begin
                 load_c = 1;
-                mux1_sel = 2'b00;      // ALU result
-                reg_write = 1;
                 load_flags = 1;
+                next_state = WRITEBACK;
             end
 
-            SUB: begin
+            WRITEBACK: begin
+                reg_write = 1;
+                mux1_sel = 2'b00;
+                next_state = FETCH;
+            end
+
+            OUT_LOAD: begin
                 load_a = 1;
-                load_b = 1;
-                alu_op = SUB;
+                alu_op = 4'b0000; // Pass A
                 load_c = 1;
+                next_state = OUT_WRITE;
+            end
+
+            OUT_WRITE: begin
                 mux1_sel = 2'b00;
-                reg_write = 1;
-                load_flags = 1;
-            end
-
-            MOV: begin
-                load_a = 1;
-                load_b = 1;
-                alu_op = 4'b0000;      // Bypass ALU if needed
-                load_c = 1;
-                mux1_sel = 2'b00;
-                reg_write = 1;
-            end
-
-            MOVI: begin
-                alu_op = 4'b0000;      // Immediate loaded directly
-                load_c = 1;
-                mux1_sel = 2'b00;
-                reg_write = 1;
-            end
-
-            STORE: begin
-                load_b = 1;            // Address
-                load_data_reg = 1;    // Data to be stored
-                mem_write = 1;
-            end
-
-            LOAD: begin
-                load_b = 1;
                 load_data_reg = 1;
-                mux1_sel = 2'b01;      // Memory data
-                reg_write = 1;
-            end
-
-            JMP: begin
-                load_pc = 1;
-                pc_sel = 1;
-            end
-
-            NOP: begin
-
-            end
-
-            default: begin
-
+                io_enable = 1;
+                io_write_enable = 1;
+                next_state = FETCH;
             end
         endcase
     end
-
 endmodule

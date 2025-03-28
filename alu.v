@@ -8,6 +8,7 @@ module alu (a, b, alu_op, result, zero, carry, overflow);
 
     wire [8:0] sum, diff;  // one extra bit to detect overflow and carry
 
+
     assign diff = a - b;
     assign sum = a + b;
 
@@ -41,6 +42,8 @@ module alu (a, b, alu_op, result, zero, carry, overflow);
             carry = 0;
             overflow = 0;
         end
+    
     end
+
 
 endmodule

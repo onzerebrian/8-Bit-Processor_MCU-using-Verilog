@@ -12,7 +12,7 @@ module program_counter (clk, reset, load_pc, inc_pc,pc_in,pc_out);
             pc_out <= pc_in;
         else if (inc_pc) 
             pc_out <= pc_out + 1;
-        else pc_out <= 8'b00000000;
+        
     end
 
 endmodule
