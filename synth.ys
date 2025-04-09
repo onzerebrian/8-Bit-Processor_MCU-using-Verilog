@@ -27,8 +27,10 @@ hierarchy -top mcu_top
 # Generic synthesis
 proc; opt; fsm; opt
 techmap; opt
-abc -liberty /usr/share/oss-cad-suite/share/sky130_fd_sc_hd/tech/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty /home/onzereb/Work/vlsi/pdks/open_pdks/sources/sky130_fd_sc_hd/timing/sky130_fd_sc_hd__tt_025C_1v80.lib
 opt
 
 # Write synthesized netlist
 write_verilog synth_mcu.v
+
+

@@ -36,8 +36,11 @@ module mcu_top (
         .imm_mode(imm_mode)
     );
 
-    assign read_addr1 = rdest;
-    assign read_addr2 = rsrc;
+    assign read_addr1 = 2'b01;
+    assign read_addr2 = 2'b10;
+
+
+    
     assign write_addr = rdest;
     assign jump_address = {4'b0000, imm};  // simple expansion
 

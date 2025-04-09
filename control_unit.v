@@ -1,4 +1,3 @@
-
 module control_unit (
     input clk,
     input reset,
@@ -22,6 +21,7 @@ module control_unit (
 );
 
     reg [2:0] state, next_state;
+    reg [3:0] alu_op_reg;  // Register to hold alu_op across EXEC1, EXEC2, and WRITEBACK
 
     parameter FETCH = 0, DECODE = 1, EXEC1 = 2, EXEC2 = 3, WRITEBACK = 4,
               OUT_LOAD = 5, OUT_WRITE = 6;
@@ -51,7 +51,7 @@ module control_unit (
         inc_pc = 0;
         pc_sel = 0;
         mux1_sel = 2'b00;
-        alu_op = 4'b0000;
+        alu_op = alu_op_reg; // Use the stored alu_op from the register
         io_enable = 0;
         io_write_enable = 0;
         next_state = FETCH;
@@ -77,17 +77,16 @@ module control_unit (
             EXEC1: begin
                 load_a = 1;
                 load_b = 1;
+                load_c = 1;
                 case (opcode)
-                    ADD: alu_op = 4'b0001;
-                    SUB: alu_op = 4'b0010;
-                    AND_OP: alu_op = 4'b0011;
-                    OR_OP:  alu_op = 4'b0100;
-                    XOR_OP: alu_op = 4'b0101;
-                    MOV:    alu_op = 4'b0000;
-                    LDI:    alu_op = 4'b0000;
-                    DEC:    alu_op = 4'b0110;
-                    JMP:    pc_sel = 1;
-                    JNZ:    pc_sel = 1;
+                    ADD:    alu_op_reg = 4'b0000;  // ALU operation for ADD (4'b0000)
+                    SUB:    alu_op_reg = 4'b0001;  // ALU operation for SUB (4'b0001)
+                    AND_OP: alu_op_reg = 4'b0010;  // ALU operation for AND (4'b0010)
+                    OR_OP:  alu_op_reg = 4'b0011;  // ALU operation for OR (4'b0011)
+                    XOR_OP: alu_op_reg = 4'b0100;  // ALU operation for XOR (4'b0100)
+                    MOV:    alu_op_reg = 4'b0101;  // ALU operation for MOV (4'b0101)
+                    LDI:    alu_op_reg = 4'b0110;  // ALU operation for LDI (4'b0110)
+                    DEC:    alu_op_reg = 4'b0111;  // ALU operation for DEC (4'b0111)
                 endcase
                 next_state = EXEC2;
             end
@@ -106,7 +105,7 @@ module control_unit (
 
             OUT_LOAD: begin
                 load_a = 1;
-                alu_op = 4'b0000; // Pass A
+                alu_op_reg = 4'b0000; // Pass A
                 load_c = 1;
                 next_state = OUT_WRITE;
             end

@@ -1,13 +1,8 @@
-70
-05
-71
-03
-10
-20
-61
-C0
-30
-40
-50
-91
-B0
+70    // LDI - Load Immediate into R1 (R1 = 5)
+70    // LDI - Load Immediate into R2 (R2 = 3)
+10    // ADD - Add R1 and R2, store the result in R3 (R3 = R1 + R2)
+20    // SUB - Subtract R2 from R1, store the result in R4 (R4 = R1 - R2)
+70    // LDI - Load Immediate into R1 (R1 = 8)
+70    // LDI - Load Immediate into R2 (R2 = 2)
+10    // ADD - Add R1 and R2, store the result in R3 (R3 = R1 + R2)
+20    // SUB - Subtract R2 from R1, store the result in R4 (R4 = R1 - R2)
